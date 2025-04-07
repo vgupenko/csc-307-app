@@ -3,6 +3,8 @@
   "version": "1.0.0",
   "main": "index.js",
   "scripts": {
+    "dev": "cd packages/react-frontend/ && vite",
+    "start": "cd packages/react-frontend/ && vite",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "author": "",
