@@ -7,6 +7,7 @@ function MyApp() {
 
   const [characters, setCharacters] = useState([]);
 
+  /*"Character" means "entry" here, and not an alphanumeric "character".*/
   function removeOneCharacter(index) {
 
     const updated = characters.filter((character, i) => {
@@ -15,13 +16,17 @@ function MyApp() {
     setCharacters(updated);
   }
 
+  function updateList(person) {
+    setCharacters([...characters, person]);
+  }
+
   return (
     <div className="container">
       <Table
       characterData={characters}
       removeCharacter={removeOneCharacter}
       />
-    <Form />
+    <Form handleSubmit={updateList} />
     </div>
   );
 }
