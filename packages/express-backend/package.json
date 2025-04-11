@@ -1,18 +1,13 @@
 {
-  "name": "csc-307-app",
+  "name": "express-backend",
   "version": "1.0.0",
-  "main": "index.js",
+  "main": "backend.js",
   "scripts": {
-    "dev": "cd packages/react-frontend/ && vite",
-    "start": "cd packages/react-frontend/ && vite",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "author": "",
   "license": "ISC",
   "description": "",
-  "workspaces": [
-    "packages/*"
-  ],
   "dependencies": {
     "express": "^5.1.0"
   }
