@@ -81,6 +81,23 @@ app.post("/users", (req, res) => {
   res.send();
 });
 
+// DELETE endpoint to delete a user by id
+app.delete("/users/:id", (req, res) => {
+
+  const userId = req.params.id;
+
+  // find the index of the user in the list based on the id
+  const userIndex = users["users_list"].findIndex((user) => user.id === userId);
+
+  if (userIndex === -1) {
+    return res.status(404).json({ error: "User not found." });
+  }
+
+  // remove the user from the list using splice.
+  users["users_list"].splice(userIndex, 1);
+  res.status(200).json({ message: `User with id ${userId} deleted successfully.` });
+});
+
 app.listen(port, () => {
   console.log(
     `Example app listening at http://localhost:${port}`
