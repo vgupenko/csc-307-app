@@ -47,14 +47,28 @@ const findUserByName = (name) => {
 };
 
 app.get("/users", (req, res) => {
+
   const name = req.query.name;
-  if (name != undefined) {
-    let result = findUserByName(name);
-    result = { users_list: result };
-    res.send(result);
-  } else {
-    res.send(users);
+  const job = req.query.job;
+
+  // if no query filters provided, return all users.
+  if (!name && !job) {
+    return res.send(users);
   }
+
+  // filter users based on provided query parameters.
+  const filteredUsers = users.users_list.filter((user) => {
+    let valid = true;
+    if (name) {
+      valid = valid && user.name === name;
+    }
+    if (job) {
+      valid = valid && user.job === job;
+    }
+    return valid;
+  });
+
+  res.send({ users_list: filteredUsers });
 });
 
 const findUserById = (id) =>
