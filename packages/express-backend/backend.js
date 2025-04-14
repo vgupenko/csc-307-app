@@ -92,7 +92,7 @@ const addUser = (user) => {
 app.post("/users", (req, res) => {
   const userToAdd = req.body;
   addUser(userToAdd);
-  res.send();
+  res.status(201).send();
 });
 
 // DELETE endpoint to delete a user by id
@@ -109,7 +109,8 @@ app.delete("/users/:id", (req, res) => {
 
   // remove the user from the list using splice.
   users["users_list"].splice(userIndex, 1);
-  res.status(200).json({ message: `User with id ${userId} deleted successfully.` });
+  //res.status(200).json({ message: `User with id ${userId} deleted successfully.` });
+  res.status(204).send();
 });
 
 app.listen(port, () => {
