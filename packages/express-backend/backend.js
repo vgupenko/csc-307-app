@@ -96,7 +96,7 @@ app.post("/users", (req, res) => {
 
   // generate a random id for the user using Math.random().
   // this generates a base-36 string (0-9, a-z).
-  userToAdd.id = Math.random().toString(36).substr(2, 9);
+  userToAdd.id = Math.random().toString(36).substr(2, 6);
 
   addUser(userToAdd);
   res.status(201).json(userToAdd);
