@@ -40,12 +40,17 @@ function MyApp() {
   function updateList(person) {
     postUser(person)
       .then((response) => {
-        // Only update the list if the response status code is 201
         if (response.status === 201) {
-          setCharacters((prevCharacters) => [...prevCharacters, person]);
+          // Parse the backend's response body to get the newly created user object
+          return response.json();
         } else {
-          console.log(`User not added. Received status: ${response.status}`);
+          console.error(`User not added. Received status: ${response.status}`);
+          throw new Error("Failed to add user");
         }
+      })
+      .then((newUser) => {
+        // Update the table with the new user from the backend (which includes the generated id)
+        setCharacters((prevCharacters) => [...prevCharacters, newUser]);
       })
       .catch((error) => {
         console.error("Error posting user:", error);
