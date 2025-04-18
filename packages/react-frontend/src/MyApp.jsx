@@ -9,12 +9,25 @@ function MyApp() {
 
   /*"Character" means "entry" here, and not an alphanumeric "character".*/
   function removeOneCharacter(index) {
-
-    const updated = characters.filter((character, i) => {
-      return i !== index;
-    });
-    setCharacters(updated);
+    const userId = characters[index].id;
+    fetch(`http://localhost:8000/users/${userId}`, { method: "DELETE" })
+      .then((response) => {
+        if (response.status === 204) {
+          // Only update the list on the frontend if the backend deletion was successful.
+          setCharacters((prevCharacters) =>
+            prevCharacters.filter((character, i) => i !== index)
+          );
+        } else if (response.status === 404) {
+          console.error("Resource not found. No user deleted.");
+        } else {
+          console.error(`Failed to delete user. Received status: ${response.status}`);
+        }
+      })
+      .catch((error) => {
+        console.error("Error deleting user:", error);
+      });
   }
+
 
   function updateList(person) {
     setCharacters([...characters, person]);
