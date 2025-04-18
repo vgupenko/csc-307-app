@@ -99,7 +99,7 @@ app.post("/users", (req, res) => {
   userToAdd.id = Math.random().toString(36).substr(2, 9);
 
   addUser(userToAdd);
-  res.status(201).send();
+  res.status(201).json(userToAdd);
 });
 
 // DELETE endpoint to delete a user by id
