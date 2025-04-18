@@ -39,9 +39,16 @@ function MyApp() {
 
   function updateList(person) {
     postUser(person)
-      .then(() => setCharacters([...characters, person]))
+      .then((response) => {
+        // Only update the list if the response status code is 201
+        if (response.status === 201) {
+          setCharacters((prevCharacters) => [...prevCharacters, person]);
+        } else {
+          console.log(`User not added. Received status: ${response.status}`);
+        }
+      })
       .catch((error) => {
-        console.log(error);
+        console.error("Error posting user:", error);
       });
   }
 
