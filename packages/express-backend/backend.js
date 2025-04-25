@@ -8,7 +8,7 @@ import mongoose from "mongoose";
 dotenv.config();
 
 const { MONGO_CONNECTION_STRING } = process.env;
-
+console.log(MONGO_CONNECTION_STRING);
 mongoose.set("debug", true);
 mongoose
   .connect(MONGO_CONNECTION_STRING + "users") // connect to Db "users"
