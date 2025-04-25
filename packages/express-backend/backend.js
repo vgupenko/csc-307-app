@@ -1,39 +1,21 @@
 // backend.js
 import express from "express";
 import cors from "cors";
+import userService from "./services/user-service.js";
+import dotenv from "dotenv";
+import mongoose from "mongoose";
+
+dotenv.config();
+
+const { MONGO_CONNECTION_STRING } = process.env;
+
+mongoose.set("debug", true);
+mongoose
+  .connect(MONGO_CONNECTION_STRING + "users") // connect to Db "users"
+  .catch((error) => console.log(error));
 
 const app = express();
 const port = 8000;
-
-const users = {
-  users_list: [
-    {
-      id: "xyz789",
-      name: "Charlie",
-      job: "Janitor"
-    },
-    {
-      id: "abc123",
-      name: "Mac",
-      job: "Bouncer"
-    },
-    {
-      id: "ppp222",
-      name: "Mac",
-      job: "Professor"
-    },
-    {
-      id: "yat999",
-      name: "Dee",
-      job: "Aspring actress"
-    },
-    {
-      id: "zap555",
-      name: "Dennis",
-      job: "Bartender"
-    }
-  ]
-};
 
 app.use(cors());
 app.use(express.json());
@@ -42,54 +24,33 @@ app.get("/", (req, res) => {
   res.send("Hello World!");
 });
 
-const findUserByName = (name) => {
-  return users["users_list"].filter(
-    (user) => user["name"] === name
-  );
-};
 
 app.get("/users", (req, res) => {
-
-  const name = req.query.name;
-  const job = req.query.job;
-
-  // if no query filters provided, return all users.
-  if (!name && !job) {
-    return res.send(users);
-  }
-
-  // filter users based on provided query parameters.
-  const filteredUsers = users.users_list.filter((user) => {
-    let valid = true;
-    if (name) {
-      valid = valid && user.name === name;
-    }
-    if (job) {
-      valid = valid && user.job === job;
-    }
-    return valid;
-  });
-
-  res.send({ users_list: filteredUsers });
+  const { name, job } = req.query;
+  userService.getUsers(name, job)
+    .then((users) => {
+      res.json({ users_list: users });
+    })
+    .catch((error) => {
+      console.error("Error fetching users:", error);
+      res.status(500).json({ error: "An error occurred while fetching users." });
+    });
 });
-
-const findUserById = (id) =>
-  users["users_list"].find((user) => user["id"] === id);
 
 app.get("/users/:id", (req, res) => {
-  const id = req.params["id"]; //or req.params.id
-  let result = findUserById(id);
-  if (result === undefined) {
-    res.status(404).send("Resource not found.");
-  } else {
-    res.send(result);
-  }
+  const { id } = req.params;
+  userService.findUserById(id)
+    .then((user) => {
+      if (!user) {
+        return res.status(404).send("Resource not found.");
+      }
+      res.json(user);
+    })
+    .catch((error) => {
+      console.error("Error fetching user by id:", error);
+      res.status(500).json({ error: "An error occurred while fetching the user." });
+    });
 });
-
-const addUser = (user) => {
-  users["users_list"].push(user);
-  return user;
-};
 
 app.post("/users", (req, res) => {
   const userToAdd = req.body;
@@ -97,27 +58,37 @@ app.post("/users", (req, res) => {
   // generate a random id for the user using Math.random().
   // this generates a base-36 string (0-9, a-z).
   userToAdd.id = Math.random().toString(36).substr(2, 6);
-
-  addUser(userToAdd);
-  res.status(201).json(userToAdd);
+  
+  userService.addUser(userToAdd)
+    .then((addedUser) => {
+      res.status(201).json(addedUser);
+    })
+    .catch((error) => {
+      console.error("Error adding new user:", error);
+      res.status(500).json({ error: "An error occurred while adding the user." });
+    });
 });
 
-// DELETE endpoint to delete a user by id
+// DELETE /users/:id - delete a user by id.
 app.delete("/users/:id", (req, res) => {
-
-  const userId = req.params.id;
-
-  // find the index of the user in the list based on the id
-  const userIndex = users["users_list"].findIndex((user) => user.id === userId);
-
-  if (userIndex === -1) {
-    return res.status(404).json({ error: "User not found." });
+  const { id } = req.params;
+  
+  // check if deleteUser function exists in the service layer.
+  if (typeof userService.deleteUser !== "function") {
+    return res.status(501).json({ error: "Delete operation is not supported." });
   }
-
-  // remove the user from the list using splice.
-  users["users_list"].splice(userIndex, 1);
-  //res.status(200).json({ message: `User with id ${userId} deleted successfully.` });
-  res.status(204).send();
+  
+  userService.deleteUser(id)
+    .then((deletionResult) => {
+      if (deletionResult.deletedCount === 0) {
+        return res.status(404).json({ error: "User not found." });
+      }
+      res.status(204).send();
+    })
+    .catch((error) => {
+      console.error("Error deleting user:", error);
+      res.status(500).json({ error: "An error occurred while deleting the user." });
+    });
 });
 
 app.listen(port, () => {
@@ -125,3 +96,4 @@ app.listen(port, () => {
     `Example app listening at http://localhost:${port}`
   );
 });
+
