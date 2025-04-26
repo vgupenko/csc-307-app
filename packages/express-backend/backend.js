@@ -8,7 +8,7 @@ import mongoose from "mongoose";
 dotenv.config();
 
 const { MONGO_CONNECTION_STRING } = process.env;
-console.log(MONGO_CONNECTION_STRING);
+
 mongoose.set("debug", true);
 mongoose
   .connect(MONGO_CONNECTION_STRING + "users") // connect to Db "users"
@@ -72,22 +72,29 @@ app.post("/users", (req, res) => {
 // DELETE /users/:id - delete a user by id.
 app.delete("/users/:id", (req, res) => {
   const { id } = req.params;
-  
-  // check if deleteUser function exists in the service layer.
+
+  // Check if the deleteUser function exists in the service layer.
   if (typeof userService.deleteUser !== "function") {
-    return res.status(501).json({ error: "Delete operation is not supported." });
+    return res
+      .status(501)
+      .json({ error: "Delete operation is not supported." });
   }
-  
-  userService.deleteUser(id)
-    .then((deletionResult) => {
-      if (deletionResult.deletedCount === 0) {
+
+  userService
+    .deleteUser(id)
+    .then((deletedUser) => {
+      if (!deletedUser) {
+        // If no document was deleted, return 404.
         return res.status(404).json({ error: "User not found." });
       }
+      // Successful deletion returns a 204 No Content.
       res.status(204).send();
     })
     .catch((error) => {
       console.error("Error deleting user:", error);
-      res.status(500).json({ error: "An error occurred while deleting the user." });
+      res
+        .status(500)
+        .json({ error: "An error occurred while deleting the user." });
     });
 });
 

@@ -9,7 +9,7 @@ function MyApp() {
 
   /*"Character" means "entry" here, and not an alphanumeric "character".*/
   function removeOneCharacter(index) {
-    const userId = characters[index].id;
+    const userId = characters[index]._id;
     fetch(`http://localhost:8000/users/${userId}`, { method: "DELETE" })
       .then((response) => {
         if (response.status === 204) {
